@@ -1,0 +1,49 @@
+version: "3"
+services:
+  nexus:
+    image: sonatype/nexus3
+    volumes:
+      - "nexus-data:/nexus-data"
+    ports:
+      - "8081:8081"
+      - "8082:8082"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 2048M
+  jenkins:
+    image: jenkins/jenkins:2.361.1-jdk11
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - "./jenkins_home:/var/jenkins_home"
+  sonarqube:
+    image: sonarqube:8.7-community
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonarqube_conf:/opt/sonarqube/conf
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    environment:
+      - SONARQUBE_JAVA_OPTS="-Dsonar.javascript.node=C:\Program Files\nodejs\node.exe"
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=sonar
+      - POSTGRES_PASSWORD=sonar
+    volumes:
+      - postgresqll:/var/lib/postgresql
+      - postgresql_dataa:/var/lib/postgresql/data
+  anchore-grype:
+    image: anchore/grype:latest
+
+volumes:
+  nexus-data: {}
+  sonarqube_conf:
+  sonarqube_data:
+  sonarqube_extensions:
+  postgresqll:
+  postgresql_dataa:
